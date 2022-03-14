@@ -7,13 +7,18 @@ class Game {
     Game() 
     {
       this->players = 0;
-      Si = vector<int>();
-      U = map<vector<int>, vector<int>> ();
+      this->Si = vector<int>();
+      this->U = map<vector<int>, vector<int>> ();
+      this->Ui = vector<vector<map<vector<int>, int>>> ();
+      this->dominantStrategies = vector<vector<int>> ();
     }
+    
     int players;
     vector<int> Si;
     map<vector<int>, vector<int>> U; 
     vector<vector<map<vector<int>, int>>> Ui;
+    vector<vector<int>> dominantStrategies;
+    
     void recursive_strategy(int player, vector<int> &strats)
     {
       if(player == -1)
@@ -115,6 +120,11 @@ class Game {
           cout << f << " ";
         cout << "\n";
       }
+    }
+
+    bool checkDominance(int p, int s)
+    {
+      return false;
     }
 };
 
