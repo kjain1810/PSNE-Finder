@@ -11,14 +11,16 @@ class Game {
       this->U = map<vector<int>, vector<int>> ();
       this->Ui = vector<vector<map<vector<int>, int>>> ();
       this->dominantStrategies = vector<vector<int>> ();
+      this->PSNE = vector<vector<int>> ();
     }
-    
+
     int players;
     vector<int> Si;
     map<vector<int>, vector<int>> U; 
     vector<vector<map<vector<int>, int>>> Ui;
     vector<vector<int>> dominantStrategies;
-    
+    vector<vector<int>> PSNE;
+
     void recursive_strategy(int player, vector<int> &strats)
     {
       if(player == -1)
@@ -80,7 +82,7 @@ class Game {
           this->_buildUi(0, a, b, vec);
         }
     }
-    
+
     void checkUi()
     {
       for(int a = 0; a < this->players; a++)
@@ -122,9 +124,96 @@ class Game {
       }
     }
 
+    bool _checkDominance(int c, int tp, int ts, vector<int> &strats)
+    {
+      if(c == this->players)
+      {
+        // return true if s(ts, s-i) >= s(strats)
+        // else return false
+        int retHere = this->U[strats][tp];
+        int tmp = strats[tp];
+        strats[tp] = ts;
+        int retComp = this->U[strats][tp];
+        strats[tp] = tmp;
+        return (retComp >= retHere);
+      }
+      else
+      {
+        bool ret = true;
+        for(int a = 0; a < this->Si[c]; a++)
+        {
+          strats.push_back(a);
+          ret = (ret & (this->_checkDominance(c + 1, tp, ts, strats)));
+          strats.pop_back();
+        }
+        return ret;
+      }
+    }
+
     bool checkDominance(int p, int s)
     {
-      return false;
+      vector<int> strats;
+      return this->_checkDominance(0, p, s, strats);
+    }
+
+    void findPSNE(int c, vector<int> &strats)
+    {
+      if(c == this->players)
+      {
+        bool flag = true;
+        for(int a = 0; a < this->players; a++)
+        {
+          if(!flag)
+            break;
+          int hereStrat = strats[a];
+          int hereScore = this->U[strats][a];
+          for(int b = 0; b < this->Si[a]; b++)
+          {
+            strats[a] = b;
+            int newScore = this->U[strats][a];
+            if(newScore > hereScore)
+            {
+              flag = false;
+              strats[a] = hereStrat;
+              break;
+            }
+          }
+          strats[a] = hereStrat;
+        }
+        if(flag)
+        {
+          vector<int> newVec;
+          for(auto x: strats)
+            newVec.push_back(x);
+          this->PSNE.push_back(newVec);    
+        }
+      }
+      else
+      {
+        for(int a = 0; a < this->Si[c]; a++)
+        {
+          strats.push_back(a);
+          this->findPSNE(c + 1, strats);
+          strats.pop_back();
+        }
+      }
+    }
+
+    void makePSNE()
+    {
+      vector<int> vec;
+      this->findPSNE(0, vec);
+    }
+
+    void printPSNE()
+    {
+      cout << this->PSNE.size() << endl;
+      for(auto psne: this->PSNE)
+      {
+        for(auto s: psne)
+          cout << s + 1 << " ";
+        cout << endl;
+      }
     }
 };
 
@@ -132,8 +221,10 @@ int main()
 {
   Game game;
   game.input();
-  game.checkInput();
+  /* game.checkInput(); */
   game.buildUi();
-  game.checkUi();
+  /* game.checkUi(); */
+  game.makePSNE();
+  game.printPSNE();
   return 0;
 }
