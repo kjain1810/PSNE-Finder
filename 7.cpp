@@ -156,6 +156,29 @@ class Game {
       return this->_checkDominance(0, p, s, strats);
     }
 
+    void findDominantStrategies()
+    {
+      for(int a = 0; a < this->players; a++)
+      {
+        vector<int> vec;
+        for(int b = 0; b < this->Si[a]; b++)
+          if(this->checkDominance(a, b))
+            vec.push_back(b);
+        this->dominantStrategies.push_back(vec);
+      }
+    }
+
+    void printDominantStrategies()
+    {
+      for(int a = 0; a < this->players; a++)
+      {
+        cout << this->dominantStrategies[a].size() << " ";
+        for(auto s: this->dominantStrategies[a])
+          cout << s + 1 << " ";
+        cout << endl;
+      }
+    }
+
     void findPSNE(int c, vector<int> &strats)
     {
       if(c == this->players)
@@ -226,5 +249,7 @@ int main()
   /* game.checkUi(); */
   game.makePSNE();
   game.printPSNE();
+  game.findDominantStrategies();
+  game.printDominantStrategies();
   return 0;
 }
